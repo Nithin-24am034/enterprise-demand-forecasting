@@ -191,11 +191,13 @@
         const RENDER_BASE_URL = 'https://enterprise-demand-forecasting-1.onrender.com';
         
         function getApiBaseUrl() {
-            const origin = window.location.origin;
-            if (origin && origin.startsWith('http')) {
-                return origin; // If loaded from web server (Render, local FastAPI), use same origin
+            const hostname = window.location.hostname;
+            // Only use current origin if running on localhost or directly on Render domain
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('onrender.com')) {
+                return window.location.origin;
             }
-            return RENDER_BASE_URL; // Fallback if loaded via local file://
+            // For GitHub Pages (*.github.io) or file:// protocol, target the Render backend API
+            return RENDER_BASE_URL;
         }
 
         function setPresetDate(dateStr) {
@@ -210,7 +212,8 @@
             try {
                 const apiBase = getApiBaseUrl();
                 const res = await fetch(`${apiBase}/health`, { method: 'GET' });
-                if (res.ok) {
+                const contentType = res.headers.get('content-type') || '';
+                if (res.ok && contentType.includes('application/json')) {
                     const data = await res.json();
                     if (data.status === 'online') {
                         statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot";
@@ -275,7 +278,13 @@
                 clearTimeout(coldStartTimer);
                 coldStartNote.classList.add('hidden');
 
-                const data = await response.json();
+                const contentType = response.headers.get('content-type') || '';
+                let data;
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    throw new Error(`API server at ${apiBase} returned non-JSON response (${response.status}).`);
+                }
 
                 if (!response.ok) {
                     throw new Error(data.detail || 'API request failed');
