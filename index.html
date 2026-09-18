@@ -4,77 +4,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Demand Forecasting Dashboard</title>
+    <title>Enterprise AI Demand Forecasting Dashboard</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1d4ed8 100%);
+        }
+        .pulse-dot {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 font-sans p-8">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
 
-    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="bg-blue-600 p-6 text-white flex justify-between items-center">
+    <!-- Top Navigation / Banner -->
+    <header class="gradient-bg text-white py-8 px-6 shadow-xl relative overflow-hidden mb-8">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-4">
             <div>
-                <h1 class="text-2xl font-bold">Enterprise Demand Forecasting</h1>
-                <p class="text-sm opacity-80 mt-1">Custom Date Inference</p>
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white/10 rounded-lg backdrop-blur-md">
+                        <i class="fa-solid fa-chart-line text-2xl text-blue-200"></i>
+                    </div>
+                    <h1 class="text-3xl font-extrabold tracking-tight">Enterprise Demand Forecasting</h1>
+                </div>
+                <p class="text-blue-100 text-sm mt-1">XGBoost Machine Learning Inference Engine • Cloud Production</p>
+            </div>
+            
+            <div id="serverStatus" class="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-xs font-medium">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot" id="statusDot"></span>
+                <span id="statusText">Checking API...</span>
             </div>
         </div>
+    </header>
 
-        <div class="p-6">
-            <div class="grid grid-cols-3 gap-6 mb-6">
-                <!-- Store Selection -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Store</label>
-                    <select id="storeId" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50">
-                        <option value="store_1">Store 1</option>
-                        <option value="store_2">Store 2</option>
-                        <option value="store_3">Store 3</option>
-                        <option value="store_4">Store 4</option>
-                        <option value="store_5">Store 5</option>
-                    </select>
+    <main class="max-w-4xl mx-auto px-4">
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
+            <div class="p-6 md:p-8">
+
+                <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-blue-600"></i> Forecast Parameters
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <!-- Store Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Select Store
+                        </label>
+                        <select id="storeId" class="w-full border border-slate-300 rounded-xl p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-150 font-medium">
+                            <option value="store_1" selected>Store 1</option>
+                            <option value="store_2">Store 2</option>
+                            <option value="store_3">Store 3</option>
+                            <option value="store_4">Store 4</option>
+                            <option value="store_5">Store 5</option>
+                            <option value="store_6">Store 6</option>
+                            <option value="store_7">Store 7</option>
+                            <option value="store_8">Store 8</option>
+                            <option value="store_9">Store 9</option>
+                            <option value="store_10">Store 10</option>
+                        </select>
+                    </div>
+
+                    <!-- Item Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Select Item
+                        </label>
+                        <select id="itemId" class="w-full border border-slate-300 rounded-xl p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-150 font-medium">
+                            <option value="item_1" selected>Item 1</option>
+                            <option value="item_10">Item 10</option>
+                            <option value="item_15">Item 15</option>
+                            <option value="item_25">Item 25</option>
+                            <option value="item_50">Item 50</option>
+                        </select>
+                    </div>
+
+                    <!-- Target Date Picker -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Target Forecast Date
+                        </label>
+                        <input type="date" id="targetDate"
+                            class="w-full border border-slate-300 rounded-xl p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-150 font-medium text-slate-800"
+                            value="2024-03-15">
+                    </div>
                 </div>
 
-                <!-- Item Selection -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Item</label>
-                    <select id="itemId" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50">
-                        <option value="item_1">Item 1</option>
-                        <option value="item_10">Item 10</option>
-                        <option value="item_25">Item 25</option>
-                        <option value="item_50">Item 50</option>
-                    </select>
+                <!-- Quick Preset Dates -->
+                <div class="mb-8">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">Quick Date Presets (Data Baseline: 2023-12-31)</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setPresetDate('2024-01-15')" class="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 transition">Jan 15, 2024 (+15d)</button>
+                        <button onclick="setPresetDate('2024-03-15')" class="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 transition">Mar 15, 2024 (+75d)</button>
+                        <button onclick="setPresetDate('2024-06-30')" class="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 transition">Jun 30, 2024 (+180d)</button>
+                        <button onclick="setPresetDate('2024-12-31')" class="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 transition">Dec 31, 2024 (+1 Year)</button>
+                    </div>
                 </div>
 
-                <!-- Custom Date Picker -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Target Date</label>
-                    <input type="date" id="targetDate"
-                        class="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 text-gray-700"
-                        value="2024-03-15">
+                <!-- Action Button -->
+                <button id="forecastBtn" onclick="generateForecast()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition duration-200 flex items-center justify-center space-x-3 shadow-lg shadow-blue-500/25 active:scale-[0.99]">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg" id="btnIcon"></i>
+                    <span id="btnText" class="text-base tracking-wide">Generate Target Forecast</span>
+                </button>
+
+                <!-- Cold Start Notice (Hidden by default, shown if taking over 2 seconds) -->
+                <div id="coldStartNote" class="mt-4 hidden p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs text-center flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-notch fa-spin text-amber-600"></i>
+                    <span>Connecting to Render server... Free tier instances may take 30–40 seconds to spin up on cold start.</span>
                 </div>
-            </div>
 
-            <button onclick="generateForecast()"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
-                Generate Target Forecast
-            </button>
+                <!-- Results Panel -->
+                <div id="resultCard" class="mt-8 hidden animate-fade-in">
+                    <div class="bg-gradient-to-br from-blue-50 via-indigo-50/40 to-slate-50 border border-blue-200/70 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                            
+                            <div class="text-center md:text-left">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-700 font-semibold text-xs rounded-full uppercase tracking-wider inline-block mb-2">
+                                    Projected Demand Output
+                                </span>
+                                <p class="text-slate-500 text-sm font-medium">
+                                    Forecast Date: <span id="displayDate" class="font-bold text-slate-800"></span> 
+                                    (<span id="displayDay" class="font-semibold text-blue-600"></span>)
+                                </p>
+                                <div class="mt-3">
+                                    <span id="salesVolume" class="text-6xl font-black tracking-tight text-blue-700">0</span>
+                                    <span class="text-2xl font-bold text-blue-600 ml-2">units</span>
+                                </div>
+                            </div>
 
-            <!-- Results Panel -->
-            <div id="resultCard" class="mt-8 hidden bg-blue-50 border border-blue-100 rounded-lg p-6 text-center">
-                <p class="text-gray-500 text-sm uppercase tracking-wide font-semibold mb-1">Projected Demand for <span
-                        id="displayDate" class="text-blue-600"></span></p>
-                <h2 class="text-5xl font-extrabold text-blue-700 my-2"><span id="salesVolume">0</span> <span
-                        class="text-2xl text-blue-500 font-medium">units</span></h2>
-                <p class="text-sm text-gray-600 mt-2">Target: <span id="displayCombo" class="font-medium"></span></p>
-            </div>
+                            <div class="w-full md:w-auto grid grid-cols-2 gap-3 min-w-[240px]">
+                                <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <p class="text-[10px] uppercase font-bold text-slate-400">Target Combo</p>
+                                    <p id="displayCombo" class="text-xs font-bold text-slate-800 mt-0.5"></p>
+                                </div>
+                                <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <p class="text-[10px] uppercase font-bold text-slate-400">Forecast Horizon</p>
+                                    <p id="displayHorizon" class="text-xs font-bold text-blue-700 mt-0.5"></p>
+                                </div>
+                                <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <p class="text-[10px] uppercase font-bold text-slate-400">Baseline Data</p>
+                                    <p id="displayBaseline" class="text-xs font-bold text-slate-800 mt-0.5"></p>
+                                </div>
+                                <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <p class="text-[10px] uppercase font-bold text-slate-400">7-Day Rolling Avg</p>
+                                    <p id="displayRollingAvg" class="text-xs font-bold text-slate-800 mt-0.5"></p>
+                                </div>
+                            </div>
 
-            <!-- Error Panel -->
-            <div id="errorCard"
-                class="mt-8 hidden bg-red-50 border border-red-100 rounded-lg p-4 text-red-700 text-center text-sm">
-                Error generating forecast. Ensure date is in the future.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Panel -->
+                <div id="errorCard" class="mt-8 hidden bg-rose-50 border border-rose-200 rounded-2xl p-6 text-rose-800 text-center">
+                    <div class="flex items-center justify-center gap-3 text-rose-600 font-bold mb-2">
+                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                        <span class="text-base">Forecast Request Failed</span>
+                    </div>
+                    <p id="errorMessage" class="text-xs text-rose-700 font-medium">Ensure target date is in the future relative to baseline date (2023-12-31).</p>
+                </div>
+
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="max-w-4xl mx-auto px-4 mt-8 text-center text-xs text-slate-400">
+        <p>Enterprise AI Demand Forecasting • XGBoost Recursive Multi-Step Time Series Model</p>
+    </footer>
 
     <script>
+        // Resolve API Endpoint dynamically
+        const RENDER_BASE_URL = 'https://enterprise-demand-forecasting-1.onrender.com';
+        
+        function getApiBaseUrl() {
+            const origin = window.location.origin;
+            if (origin && origin.startsWith('http')) {
+                return origin; // If loaded from web server (Render, local FastAPI), use same origin
+            }
+            return RENDER_BASE_URL; // Fallback if loaded via local file://
+        }
+
+        function setPresetDate(dateStr) {
+            document.getElementById('targetDate').value = dateStr;
+        }
+
+        // Check health on page load
+        async function checkServerHealth() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            try {
+                const apiBase = getApiBaseUrl();
+                const res = await fetch(`${apiBase}/health`, { method: 'GET' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'online') {
+                        statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot";
+                        statusText.innerText = "System Online";
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn("Health check pending or server sleeping:", err);
+            }
+            
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 pulse-dot";
+            statusText.innerText = "Server Standby";
+        }
+
         async function generateForecast() {
             const store = document.getElementById('storeId').value;
             const item = document.getElementById('itemId').value;
@@ -82,12 +233,36 @@
 
             const resultCard = document.getElementById('resultCard');
             const errorCard = document.getElementById('errorCard');
+            const errorMessage = document.getElementById('errorMessage');
+            const forecastBtn = document.getElementById('forecastBtn');
+            const btnIcon = document.getElementById('btnIcon');
+            const btnText = document.getElementById('btnText');
+            const coldStartNote = document.getElementById('coldStartNote');
 
             resultCard.classList.add('hidden');
             errorCard.classList.add('hidden');
+            coldStartNote.classList.add('hidden');
+
+            if (!customDate) {
+                errorMessage.innerText = "Please select a valid target date.";
+                errorCard.classList.remove('hidden');
+                return;
+            }
+
+            // Set loading UI state
+            forecastBtn.disabled = true;
+            forecastBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            btnIcon.className = "fa-solid fa-spinner fa-spin text-lg";
+            btnText.innerText = "Calculating Forecast...";
+
+            // Show cold start message timer if request takes > 2 seconds
+            const coldStartTimer = setTimeout(() => {
+                coldStartNote.classList.remove('hidden');
+            }, 2000);
 
             try {
-                const response = await fetch('https://enterprise-demand-forecasting-1.onrender.com', {
+                const apiBase = getApiBaseUrl();
+                const response = await fetch(`${apiBase}/predict`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -97,21 +272,48 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('API request failed');
+                clearTimeout(coldStartTimer);
+                coldStartNote.classList.add('hidden');
 
                 const data = await response.json();
 
+                if (!response.ok) {
+                    throw new Error(data.detail || 'API request failed');
+                }
+
+                // Populate Result Data
                 document.getElementById('displayDate').innerText = data.forecast_date;
-                document.getElementById('salesVolume').innerText = data.predicted_sales;
-                document.getElementById('displayCombo').innerText = `${data.store.replace('_', ' ').toUpperCase()} | ${data.item.replace('_', ' ').toUpperCase()}`;
+                document.getElementById('displayDay').innerText = `${data.day_of_week}${data.is_weekend ? ' (Weekend)' : ''}`;
+                document.getElementById('salesVolume').innerText = data.predicted_sales.toLocaleString();
+                document.getElementById('displayCombo').innerText = `${data.store.replace('_', ' ').toUpperCase()} • ${data.item.replace('_', ' ').toUpperCase()}`;
+                document.getElementById('displayHorizon').innerText = `${data.days_ahead} Days`;
+                document.getElementById('displayBaseline').innerText = data.baseline_date;
+                document.getElementById('displayRollingAvg').innerText = `${data.rolling_avg_7} units`;
 
                 resultCard.classList.remove('hidden');
+                
+                // Update top status to online
+                document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot";
+                document.getElementById('statusText').innerText = "System Online";
 
             } catch (error) {
-                console.error(error);
+                clearTimeout(coldStartTimer);
+                coldStartNote.classList.add('hidden');
+                console.error("Forecast Error:", error);
+                
+                errorMessage.innerText = error.message || "Error generating forecast. Please verify your connection or target date.";
                 errorCard.classList.remove('hidden');
+            } finally {
+                // Restore button UI state
+                forecastBtn.disabled = false;
+                forecastBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btnIcon.className = "fa-solid fa-wand-magic-sparkles text-lg";
+                btnText.innerText = "Generate Target Forecast";
             }
         }
+
+        // Run health check on load
+        window.addEventListener('DOMContentLoaded', checkServerHealth);
     </script>
 </body>
 
